@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 
 import TaskList from './taskList';
+import TaskForm from './taskForm';
 
 const styles = StyleSheet.create({
   container: {
@@ -15,7 +16,7 @@ const styles = StyleSheet.create({
   }
 })
 
-class PsToDo extends Component {
+class Main extends Component {
   constructor(props, context) {
     super(props, context)
     this.state = {
@@ -39,15 +40,43 @@ class PsToDo extends Component {
     })
   }
 
+  onAdd(task) {
+    this.state.todos.push({ task })
+    this.setState({ todos: this.state.todos })
+    this.nav.pop();
+  }
+
+  onCancel() {
+    this.nav.pop();
+  }
+
+  onDone(task) {
+    const filteredTodos = this.state.todos.filter((filterTodo) => {
+      return filterTodo !== task;
+    })
+
+    this.setState({ todos: filteredTodos });
+  }
+
+  onEdit(task) {
+    console.log(task)
+  }
+
   renderScene(route, nav) {
     switch(route.name) {
       case 'taskform':
-        return <Text>Add form comes here</Text>
+        return (
+          <TaskForm
+            onAdd={this.onAdd.bind(this)}
+            onCancel={this.onCancel.bind(this)}
+          />
+        )
       default:
         return (
           <TaskList
             todos={this.state.todos}
             onAddStarted={this.onAddStarted.bind(this)}
+            onDone={this.onDone.bind(this)}
           />
         );
       }
@@ -60,15 +89,13 @@ class PsToDo extends Component {
   render() {
     return (
       <Navigator
+        ref={(nav) => { this.nav = nav }}
         configureScene={this.configureScene}
         initialRoute={{name: 'tasklist', index: 0}}
         renderScene={this.renderScene.bind(this)}
-        ref={(nav) => {
-          this.nav = nav
-        }}
       />
     );
   }
 }
 
-Exponent.registerRootComponent(PsToDo);
+Exponent.registerRootComponent(Main);
